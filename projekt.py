@@ -1,6 +1,7 @@
 import argparse
 import os
 import json
+import yaml
 
 def parsowanie_arg():
     parser = argparse.ArgumentParser(
@@ -83,7 +84,19 @@ def yml_yamlf(sciezka_pliku: str):
     except Exception as e:
         print(f"Wystapil nieoczekiwany blad podczas wczytywania pliku '{sciezka_pliku}': {e}")
         return None
-
+    
+def savetoyml_yaml(dane_obiekt, sciezka_pliku: str, indent: int = 2):
+    try:
+        with open(sciezka_pliku, 'w', encoding='utf-8') as f:
+            yaml.dump(dane_obiekt, f, indent=indent, allow_unicode=True, default_flow_style=False, sort_keys=False)
+        print(f"Dane zostaly pomyslnie zapisane do pliku '{sciezka_pliku}'.")
+        return True
+    except TypeError as e:
+        print(f"Blad typu danych podczas zapisu do pliku '{sciezka_pliku}': {e}")
+        return False
+    except Exception as e:
+        print(f"Wystapil nieoczekiwany blad podczas zapisu do pliku '{sciezka_pliku}': {e}")
+        return False
 
 
 ########################################################## XML
@@ -112,8 +125,8 @@ if __name__ == '__main__':
         case "json":
             savetojson(dane, args.output)
         case "yml":
-            savetoyml(dane, args.output)
+            savetoyml_yaml(dane, args.output)
         case "yaml":
-            savetoyaml(dane, args.output)
+            savetoyml_yaml(dane, args.output)
         case "xml":
             savetoxml(dane, args.output)
