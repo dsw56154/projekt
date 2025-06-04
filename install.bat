@@ -1,1 +1,1 @@
-pip install PyYAML
+PyYAML
