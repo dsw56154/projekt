@@ -21,19 +21,21 @@ def parsowanie_arg():
 
     if not os.path.exists(args.input):
         parser.error(f"Blad: Plik wejsciowy nie znaleziony: {args.input}")
-    global in_ext,out_ext
-    in_ext = os.path.splitext(args.input)[1].lower()
-    out_ext = os.path.splitext(args.output)[1].lower()
+
+    args.in_ext = os.path.splitext(args.input)[1].lower()
+    args.out_ext = os.path.splitext(args.output)[1].lower()
 
     formaty = ['.xml', '.json', '.yml', '.yaml']
 
-    if in_ext not in formaty:
-        parser.error(f"Blad: Nieobslugiwany format pliku wejsciowego: {in_ext}. Obslugiwane to: {', '.join(formaty)}")
+    if args.in_ext not in formaty:
+        parser.error(f"Blad: Nieobslugiwany format pliku wejsciowego: {args.in_ext}. Obslugiwane to: {', '.join(formaty)}")
 
-    if out_ext not in formaty:
-        parser.error(f"Blad: Nieobslugiwany format pliku wyjsciowego: {out_ext}. Obslugiwane to: {', '.join(formaty)}")
+    if args.out_ext not in formaty:
+        parser.error(f"Blad: Nieobslugiwany format pliku wyjsciowego: {args.out_ext}. Obslugiwane to: {', '.join(formaty)}")
 
     return args
+
+############################## JSON
 
 def jsonf(sciezka_pliku: str):
     if not os.path.exists(sciezka_pliku):
@@ -51,19 +53,54 @@ def jsonf(sciezka_pliku: str):
     except Exception as e:
         print(f"Wystapil nieoczekiwany blad podczas wczytywania pliku '{sciezka_pliku}': {e}")
         return None
-    
+
+def savetojson(dane_obiekt, sciezka_pliku: str, indent: int = 4):
+    try:
+        with open(sciezka_pliku, 'w', encoding='utf-8') as f:
+            json.dump(dane_obiekt, f, indent=indent, ensure_ascii=False)
+        print(f"Dane zostaly pomyslnie zapisane do pliku '{sciezka_pliku}'.")
+        return True
+    except TypeError as e:
+        print(f"Blad typu danych podczas zapisu do pliku '{sciezka_pliku}': {e}")
+        return False
+    except Exception as e:
+        print(f"Wystapil nieoczekiwany blad podczas zapisu do pliku '{sciezka_pliku}': {e}")
+        return False 
+
+########################################################## YML
+
+
+########################################################## YAML
+
+
+########################################################## XML
 
 if __name__ == '__main__':
     try:
-        argumenty = parsowanie_arg()
+        args = parsowanie_arg()
     except SystemExit as e:
         print(f"Blad podczas parsowania argumentow: {e}")
-    match in_ext:
+
+    match args.in_ext:
         case "json":
-            jsonf(input)
+            dane = jsonf(args.input)
         case "yml":
-            yml(input)
+            dane = yml(args.input)
         case "yaml":
-            yaml(input)
+            dane = yaml(args.input)
         case "xml":
-            xml(input)
+            dane = xml(args.input)
+
+    if dane is None:
+        print(f"Blad: Nie udalo sie wczytac danych z pliku wejsciowego '{args.input}'.")
+        exit(1)
+
+    match args.out_ext:
+        case "json":
+            savetojson(dane, args.output)
+        case "yml":
+            savetoyml(dane, args.output)
+        case "yaml":
+            savetoyaml(dane, args.output)
+        case "xml":
+            savetoxml(dane, args.output)
