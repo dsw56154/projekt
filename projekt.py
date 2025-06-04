@@ -106,15 +106,15 @@ if __name__ == '__main__':
         args = parsowanie_arg()
     except SystemExit as e:
         print(f"Blad podczas parsowania argumentow: {e}")
-
+    dane = None
     match args.in_ext:
-        case "json":
+        case ".json":
             dane = jsonf(args.input)
-        case "yml":
+        case ".yml":
             dane = yml_yamlf(args.input)
-        case "yaml":
+        case ".yaml":
             dane = yml_yamlf(args.input)
-        case "xml":
+        case ".xml":
             dane = xml(args.input)
 
     if dane is None:
@@ -122,11 +122,11 @@ if __name__ == '__main__':
         exit(1)
 
     match args.out_ext:
-        case "json":
+        case ".json":
             savetojson(dane, args.output)
-        case "yml":
+        case ".yml":
             savetoyml_yaml(dane, args.output)
-        case "yaml":
+        case ".yaml":
             savetoyml_yaml(dane, args.output)
-        case "xml":
+        case ".xml":
             savetoxml(dane, args.output)
