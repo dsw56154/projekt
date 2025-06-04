@@ -118,7 +118,55 @@ def xmlf(sciezka_pliku: str):
     except Exception as e:
         print(f"Wystapil nieoczekiwany blad podczas wczytywania pliku '{sciezka_pliku}': {e}")
         return None
+# czarna magia;    
+def _build_element_from_dict(tag, data):
+    element = ET.Element(tag)
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if key == '@attributes':
+                for attr_name, attr_value in value.items():
+                    element.set(attr_name, str(attr_value))
+            elif key == '#text':
+                element.text = str(value)
+            elif isinstance(value, list):
+                for item in value:
+                    child_element = _build_element_from_dict(key, item)
+                    element.append(child_element)
+            elif isinstance(value, dict):
+                child_element = _build_element_from_dict(key, value)
+                element.append(child_element)
+            else: 
+                child_element = ET.SubElement(element, key)
+                child_element.text = str(value)
+    elif data is not None: 
+        element.text = str(data)
+    return element
 
+def savetoxml(dane_obiekt, sciezka_pliku: str, indent: int = 4):
+    if not isinstance(dane_obiekt, dict) or not dane_obiekt:
+        print("Blad: Nieprawidlowy obiekt danych do zapisu XML. Oczekiwano niepustego slownika.")
+        return False
+    try:
+        root_tag = list(dane_obiekt.keys())[0]
+        root_data = dane_obiekt[root_tag]
+        
+        root_element = _build_element_from_dict(root_tag, root_data)
+
+        if hasattr(ET, 'indent'):
+            ET.indent(root_element, space=" " * indent)
+
+        tree = ET.ElementTree(root_element)
+        with open(sciezka_pliku, 'wb') as f: 
+            tree.write(f, encoding='utf-8', xml_declaration=True) 
+        print(f"Dane zostaly pomyslnie zapisane do pliku '{sciezka_pliku}'.")
+        return True
+    except TypeError as e:
+        print(f"Blad typu danych podczas zapisu do pliku '{sciezka_pliku}': {e}")
+        print("Upewnij sie, ze dane_obiekt zawiera tylko typy danych kompatybilne z XML.")
+        return False
+    except Exception as e:
+        print(f"Wystapil nieoczekiwany blad podczas zapisu do pliku '{sciezka_pliku}': {e}")
+        return False
 
 if __name__ == '__main__':
     try:
