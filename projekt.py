@@ -67,10 +67,23 @@ def savetojson(dane_obiekt, sciezka_pliku: str, indent: int = 4):
         print(f"Wystapil nieoczekiwany blad podczas zapisu do pliku '{sciezka_pliku}': {e}")
         return False 
 
-########################################################## YML
+########################################################## YML + YAML
+def yml_yamlf(sciezka_pliku: str):
+    if not os.path.exists(sciezka_pliku):
+        print(f"Blad: Plik nie znaleziony pod sciezka: {sciezka_pliku}")
+        return None
+    try:
+        with open(sciezka_pliku, 'r', encoding='utf-8') as f:
+            dane = yaml.safe_load(f)
+        print(f"Plik '{sciezka_pliku}' zostal pomyslnie wczytany i jest poprawny skladniowo (YAML).")
+        return dane
+    except yaml.YAMLError as e:
+        print(f"Blad skladni YAML w pliku '{sciezka_pliku}': {e}")
+        return None
+    except Exception as e:
+        print(f"Wystapil nieoczekiwany blad podczas wczytywania pliku '{sciezka_pliku}': {e}")
+        return None
 
-
-########################################################## YAML
 
 
 ########################################################## XML
@@ -85,9 +98,9 @@ if __name__ == '__main__':
         case "json":
             dane = jsonf(args.input)
         case "yml":
-            dane = yml(args.input)
+            dane = yml_yamlf(args.input)
         case "yaml":
-            dane = yaml(args.input)
+            dane = yml_yamlf(args.input)
         case "xml":
             dane = xml(args.input)
 
