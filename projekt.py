@@ -2,6 +2,7 @@ import argparse
 import os
 import json
 import yaml
+import xml.etree.ElementTree as ET
 
 def parsowanie_arg():
     parser = argparse.ArgumentParser(
@@ -101,6 +102,24 @@ def savetoyml_yaml(dane_obiekt, sciezka_pliku: str, indent: int = 2):
 
 ########################################################## XML
 
+def xmlf(sciezka_pliku: str):
+    if not os.path.exists(sciezka_pliku):
+        print(f"Blad: Plik nie znaleziony pod sciezka: {sciezka_pliku}")
+        return None
+    try:
+        tree = ET.parse(sciezka_pliku)
+        root = tree.getroot()
+        dane = etree_to_dict(root)
+        print(f"Plik '{sciezka_pliku}' zostal pomyslnie wczytany i jest poprawny skladniowo (XML).")
+        return dane
+    except ET.ParseError as e:
+        print(f"Blad skladni XML w pliku '{sciezka_pliku}': {e}")
+        return None
+    except Exception as e:
+        print(f"Wystapil nieoczekiwany blad podczas wczytywania pliku '{sciezka_pliku}': {e}")
+        return None
+
+
 if __name__ == '__main__':
     try:
         args = parsowanie_arg()
@@ -115,7 +134,7 @@ if __name__ == '__main__':
         case ".yaml":
             dane = yml_yamlf(args.input)
         case ".xml":
-            dane = xml(args.input)
+            dane = xmlf(args.input)
 
     if dane is None:
         print(f"Blad: Nie udalo sie wczytac danych z pliku wejsciowego '{args.input}'.")
